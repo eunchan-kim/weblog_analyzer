@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Weblog Analyzer prototype</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+        <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:200,400,700' rel='stylesheet' type='text/css'>
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/normalize.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+        <script src=" {{ url_for('static', filename='js/vendor/modernizr-2.6.2.min.js') }}"></script>
+    </head>
+    <body>
+        <!--[if lt IE 7]>
+            <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+
+        <!-- Add your site or application content here -->
+        <div class="wrapper">
+            <header>
+                <div class="container clearfix">
+                    <h1>Overview <span>{{ filename }}</span>
+                </div>
+            </header>
+            <form id="keywordbox" action="javascript:send_keyword()" method="POST">
+                <input type="text" id="keyword" value="" name="key">
+            </form>
+            <div class="container clearfix">
+                <div class="third widget doughnut">
+                    <h3>Overall Analysis</h3>
+                    <p><a href="" class="button">Filter By Employee</a></p>
+                    <div class="canvas-container">
+                        <canvas id="hours"></canvas>
+                        <span class="status"></span>
+                    </div>
+                    <div class="chart-legend">
+                        <ul>
+                            <li class="rework">Normal</li>
+                            <li class="admin">Suspicious</li>
+                            <li class="prod">Attack</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="third widget line">
+                    <div class="chart-legend">
+                        <h3><a href="/404_requests/{{ filename }}">404 Requests</a></h3>
+                        <p><span><a href="/time/{{ filename }}">Whole Traffic</a></span> &mdash; <strong><a href="/unique_request/{{ filename }}">Unique Request</a></strong></p>
+                        <p><a href="" class="button">Change Date Range</a><a href="" class="button">Filter by Location</a></p>
+                    </div>
+                    <div class="canvas-container">
+                        <canvas id="shipments"></canvas>
+                    </div>
+                </div>
+                <div class="third widget">
+                    <div class="chart-legend">
+                        <h3>Customer Service Assessment</h3>
+                        <p>based on words mentioned</p>
+                        <p><a href="" class="button">Track another word</a></p>
+                    </div>
+                    <div class="canvas-container">
+                        <canvas id="departments"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="push"></div>
+        </div>
+        <footer>
+            <div class="container">
+                &copy; 2014 BOB &mdash; <a href="">TEAM 9</a>
+            </div>
+        </footer>
+
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
+        <script>window.jQuery || document.write('<script src="{{ url_for('static', filename='js/vendor/jquery-1.10.1.min.js') }}"><\/script>')</script>
+        <script src="{{ url_for('static', filename='Chart.min.js') }}"></script>
+        <script>
+            (function(){
+            var t;
+            function size(animate){
+                if (animate == undefined){
+                    animate = false;
+                }
+                clearTimeout(t);
+                t = setTimeout(function(){
+                    $("canvas").each(function(i,el){
+                        $(el).attr({
+                            "width":$(el).parent().width(),
+                            "height":$(el).parent().outerHeight()
+                        });
+                    });
+                    redraw(animate);
+                    var m = 0;
+                    $(".widget").height("");
+                    $(".widget").each(function(i,el){ m = Math.max(m,$(el).height()); });
+                    $(".widget").height(m);
+                }, 30);
+            }
+            $(window).on('resize', function(){ size(false); });
+
+
+            function redraw(animation){
+                var options = {};
+                if (!animation){
+                    options.animation = false;
+                } else {
+                    options.animation = true;
+                }
+                var data = [
+                    {
+                        value : 50,
+                        color : "#2c9c69"
+                    },
+                    {
+                        value : 30,
+                        color : "#dbba34"
+                    },
+                    {
+                        value : 10,
+                        color : "#c62f29"
+                    }
+
+                ];
+                var canvas = document.getElementById("hours");
+                var ctx = canvas.getContext("2d");
+                new Chart(ctx).Pie(data, options);
+
+                    var l = [];
+                var d = [];
+                {% for elem in data %}
+                  l.push("{{ elem.ip }}")
+                  d.push({{ elem.num }})
+                {% endfor %}
+
+                var data = {
+                    labels : l,
+                    datasets : [
+                        {
+                            fillColor : "rgba(28, 240, 226,4)",
+                            strokeColor : "rgba(28,240,226,4)",
+                            pointColor : "#fff",
+                            pointStrokeColor : "#9DB86D",
+                            data : d
+                        }
+                    ]
+                }
+                var canvas = document.getElementById("shipments");
+                var ctx = canvas.getContext("2d");
+                new Chart(ctx).Bar(data);
+
+
+
+                var data = {
+                    labels : ["Helpful","Friendly","Kind","Rude","Slow","Frustrating"],
+                    datasets : [
+                        {
+                            fillColor : "rgba(220,220,220,0.5)",
+                            strokeColor : "#637b85",
+                            pointColor : "#dbba34",
+                            pointStrokeColor : "#637b85",
+                            data : [65,59,90,81,30,56]
+                        }
+                    ]
+                }
+                var canvas = document.getElementById("departments");
+                var ctx = canvas.getContext("2d");
+                new Chart(ctx).Radar(data, options);
+            }
+            size(true);
+
+            }());
+        </script>
+        <script>
+        function send_keyword()
+        {
+            if(!$("#logs").length){
+                var div = $(".push");
+                var input = document.createElement("textarea");
+                input.id = "logs";
+                input.cols = "130";
+                input.rows = "15";
+                div.append(input);}
+            $.post('/parse_data', {text: $("#keyword").val(), url: document.URL
+            }).done(function(msg){
+                document.getElementById("logs").value=msg["text"];
+                document.cookie="search_id="+msg["search_id"]+"; path=/;";
+            }).fail(function(msg){
+                alert("server connection failed")
+            });     
+        }
+
+        </script>
+        <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
+        <script>
+            (function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=
+            function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;
+            e=o.createElement(i);r=o.getElementsByTagName(i)[0];
+            e.src='//www.google-analytics.com/analytics.js';
+            r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));
+            ga('create','UA-XXXXX-X');ga('send','pageview');
+        </script>
+    </body>
+</html>

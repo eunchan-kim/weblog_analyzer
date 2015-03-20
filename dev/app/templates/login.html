@@ -1,0 +1,15 @@
+<!-- extend from base layout -->
+{% extends "base.html" %}
+
+{% block content %}
+  <h1>Weblog Analyzer</h1>
+  <form method="post" enctype="multipart/form-data" action="{{ url_for('upload') }}">
+    <p>
+    file upload
+    <input type="file" name="hellofile">
+    </P>
+    <div>
+    <input type="submit" value="Send">
+    </div>
+  </form>
+{% endblock %}

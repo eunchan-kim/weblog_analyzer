@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+  	<meta charset="utf-8" />
+	<title>Bar chart</title>
+	<script src="{{ url_for('static', filename='Chart.min.js') }}"></script>
+  </head>
+  <body>
+    <canvas id="buyers" width="600" height="400"></canvas>
+    <script>
+      var buyerData = {
+        labels : ["January", "Febrary", "March", "April", "May", "June"],
+	datasets : [
+	  {
+	    fillColor : "rgba(28, 240, 226, 4)",
+	    strokeColor : "#ACC26D",
+	    data : [203, 156, 99, 251, 305, 247]
+	  },
+	  {
+	    fillColor: "rgba(73,188,170,0.4)",
+	    strokeColor : "rgba(72,174,209,0.4)",
+	    data:[364,504,605,400,345,320]
+	  }
+	]
+      }
+      var buyers = document.getElementById('buyers').getContext('2d');
+      new Chart(buyers).Bar(buyerData);
+    </script>
+  </body>
+</html>
+
+

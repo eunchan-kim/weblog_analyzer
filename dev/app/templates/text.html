@@ -1,0 +1,20 @@
+<form id="keywordbox" action="javascript:send_keyword()" method="POST">
+                <input type="text" id="keyword" value="thisis" name="key">
+            </form>
+<textarea readonly id="logs" rows="4" cols="40" name="contents"></textarea>
+<script>
+  form = document.getElementById('logs');
+  form.value='asdfasdfasdfasdfasdf\nasdfasdfasdfasdfasdf\n123123123123123\n123232213123122213123\nqweqwqeqweqweqweqwewqeqwe';
+</script>
+<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
+<script>
+function send_keyword()
+{
+	$.post('parse_data', {text: $("#keyword").val(), url: document.URL
+	}).done(function(msg){
+		document.getElementById("logs").value=msg["text"]
+	}).fail(function(msg){
+		alert("server connection failed")
+	});
+}
+</script>

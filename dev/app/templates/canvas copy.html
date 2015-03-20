@@ -1,0 +1,250 @@
+<!DOCTYPE HTML>
+
+
+
+<html>
+	<head>
+			<style>
+			</style>
+			<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+			<script src="{{ url_for('static', filename='Chart.min.js') }}"></script>
+	</head>
+	
+
+	<body>
+		<div id='Title' style="float:left;clear:left;width:100%;height:20%;background-Color:#7AABB2;padding-bottom:20px;">
+			<center><strong><h1 style="color:white;">Weblog Analyzer</h1></strong></center>
+		</div>
+
+		<div id='menu1' style="float:left;clear:left;width:100%;height:10%;background-Color:#F2F3F7;">
+			<form stlye="float:right;"action="" method="post">
+				<select name="Date" id="select_date" onChange="javascript:draw_selected_menu();">
+					<option value="select">select</option>
+				{% for elem in traffic %}
+					<option value={{ elem.date }}>{{ elem.date }}</option>
+				{% endfor %}
+					<option value="404 Requests">404 Requests</option>
+				</select>
+			</form>
+			<form METHOD="LINK" action="search">		
+				<input style="float:right;width:10%"type= "submit"value="search">
+				<input style="float:right;width:10%"type="submit"value="report">
+			</form>
+		</div>
+
+
+		<div id='menu2' style="float:left;clear:left;width:100%;height:10%;background-Color:#F2F3F7;">
+			<form action="javascript:draw_attack()">		
+				<input style="float:right;width:10%"type= "submit"value="attack">
+			</form>
+			<form action="javascript:draw_normal_and_attack()">		
+				<input style="float:right;width:10%"type= "submit"value="all">
+			</form>
+		</div>
+
+		<div id='block_1' style="background-Color:#F2F3F7;float:left;clear:left;width:100%;height:30%;">
+				<canvas id='canvas_1' width=1200 height=200px style='float:left;clear:left'> 	
+					<h1> This browser does not support canvas</h1>
+				</canvas>
+		</div>
+
+		<div id="block_2" style="float:left;width:50%;background-Color:#F2F3F7;height:40%;">
+				<canvas id='canvas_2' width=450 height=400 style='float:left;width:100%;height:100%'> 	
+					<h1> This browser does not support canvas</h1>
+				</canvas>
+		</div>
+		<div id="block_3" style='float:right;background-Color:#F2F3F7;width:50%;height:40%;'>
+				<strong><h1 style='color:#A91A11;'>Suspicious User</h1></strong>
+				<textarea readonly style="font-size:20px" rows=13 cols=50 id="textarea_1" >
+
+				</textarea>
+		</div>
+	</body>
+
+<!-- this is script part!!-->
+
+	<script>
+		var all_date = [];
+		var d = [];
+		var attack_date = [];
+		var attack_data = [];
+		var tmp_attack_data = [];
+		{% for elem in traffic %}
+			all_date.push("{{ elem.date }}")
+			d.push("{{ elem.num }}")
+		{% endfor %}
+
+		{% for elem in attack_traffic %}
+			attack_date.push("{{ elem.date }}")
+			tmp_attack_data.push("{{ elem.num }}")
+		{% endfor %}
+
+		for(i=0; i<all_date.length; i++)
+		{
+			attack_data.push("garbage")
+		}
+		for(i=0; i<all_date.length; i++)
+		{
+			index = attack_date.indexOf(all_date[i])
+			if (index == -1)
+				attack_data[i] = 0;
+			else
+				attack_data[i] = tmp_attack_data[index]
+		}
+
+
+		origin_fillColor = "rgba(28, 240, 226, 4)";
+		var trafficData = {
+			labels: all_date,
+			datasets :[{
+				fillColor : "rgba(128, 135, 133, 1)",
+				strokeColor : "rgba(128,135,133,1)",
+				pointColor : "#fff",
+				pointStrokeColor : "#9DB86D",
+				data : d
+			},
+			{
+				fillColor : "rgba(169, 26, 17, 4)",
+				strokeColor : "rgba(169, 26, 17, 4)",
+				pointColor : "#fff",
+				pointStrokeColor : "#9DB86D",
+				data : attack_data
+			}]
+		}
+
+		var traffic = document.getElementById('canvas_1').getContext('2d')
+		traffic.canvas.originalwidth = traffic.canvas.width;
+		traffic.canvas.originalheight = traffic.canvas.height;
+
+		var traffic_chart = new Chart(traffic).Bar(trafficData);
+
+		var attackData = [];
+		var color_index = 0;
+		var color = ["#e6a047", "#30598a", "#5f954c", "#6e3f78"];
+		{% for elem in data2 %}
+			attackData.push({value: Number("{{ elem.num }}"), color : color[color_index], label : "{{ elem.attack }}" })
+			color_index += 1;
+			color_index = color_index % color.length
+		{% endfor %}
+
+
+
+		var attack = document.getElementById('canvas_2').getContext('2d')
+		new Chart(attack).Pie(attackData, {labelAlign: 'center'});
+
+		var suspicious_ip = [];
+		var attack_type = [];
+		var ip_and_attack = [];
+		var ip_country = [];
+		var tmp = "";
+		{% for elem in ip_list %}
+			suspicious_ip.push("{{ elem.ip }}")
+			attack_type.push("{{ elem.attack }}")
+		{% endfor %}
+		{% for elem in ip_info %}
+			tmp = "Country: " + "{{ elem.country }}" + "\nCity: " + "{{ elem.city }}"
+			ip_country.push(tmp)
+		{% endfor %}		
+
+		for(i=0; i<suspicious_ip.length; i++){
+			ip_and_attack.push(suspicious_ip[i] + " - " + attack_type[i] + "\n" + ip_country[i])
+		}
+		$("#textarea_1").val(ip_and_attack.join("\n\n"))
+
+		function draw_normal_and_attack(){
+			traffic_chart.destroy();
+			traffic.canvas.width = traffic.canvas.originalwidth;
+			traffic.canvas.height = traffic.canvas.originalheight;
+			traffic_chart = new Chart(traffic).Bar(trafficData);
+		};
+		function draw_attack(){
+			traffic_chart.destroy();
+			traffic.canvas.width = traffic.canvas.originalwidth;
+			traffic.canvas.height = traffic.canvas.originalheight;
+			
+			var attack_traffic = {
+				labels: all_date,
+				datasets :[
+				{
+					fillColor : "rgba(169, 26, 17, 4)",
+					strokeColor : "rgba(169, 26, 17, 4)",
+					pointColor : "#fff",
+					pointStrokeColor : "#9DB86D",
+					data : attack_data
+				}]
+			}
+			traffic_chart = new Chart(traffic).Bar(attack_traffic);
+		};
+		
+		var given_graph_data = {};
+
+		function addElement()
+		{
+			var test_message="banana"
+			var ni =document.getElementById('select_date');
+			var new_option = document.createElement('option');
+			new_option.text="added";
+			new_option.value="val";
+			ni.appendChild(new_option);
+		};
+		function draw_selected_menu()
+		{
+			var selected_value = $("#select_date").val()
+			var graph_data;
+			if (selected_value == "select"){
+				return;
+			}
+
+			if (typeof(given_graph_data[selected_value]) == "undefined")
+			{
+				$.post('/give_graph_data', {value: selected_value
+				}).done(function(msg){
+					graph_data = msg['graph_data'];
+					var day_traffic = {
+						labels: graph_data[0],
+						datasets :[
+						{
+							fillColor : "rgba(128, 135, 133, 4)",
+							strokeColor : "rgba(128, 135, 133, 4)",
+							pointColor : "#fff",
+							pointStrokeColor : "#9DB86D",
+							data : graph_data[1]
+						}]
+					}
+					traffic_chart.destroy();
+					traffic.canvas.width = traffic.canvas.originalwidth;
+					traffic.canvas.height = traffic.canvas.originalheight;				
+
+					traffic_chart = new Chart(traffic).Bar(day_traffic);
+
+					given_graph_data[selected_value] = graph_data;
+
+
+				}).fail(function(msg){
+					alert("server connection failed");
+				});
+			}
+			else{
+				graph_data = given_graph_data[selected_value];		
+				var day_traffic = {
+					labels: graph_data[0],
+					datasets :[
+					{
+						fillColor : "rgba(128, 135, 133, 4)",
+						strokeColor : "rgba(128, 135, 133, 4)",
+						pointColor : "#fff",
+						pointStrokeColor : "#9DB86D",
+						data : graph_data[1]
+					}]
+				}
+				traffic_chart.destroy();
+				traffic.canvas.width = traffic.canvas.originalwidth;
+				traffic.canvas.height = traffic.canvas.originalheight;				
+				traffic_chart = new Chart(traffic).Bar(day_traffic);
+			}
+
+		}
+
+	</script>
+</html>
+

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+  	<meta charset="utf-8" />
+	<title>404 Lists</title>
+	<script src="{{ url_for('static', filename='Chart.min.js') }}"></script>
+  </head>
+  <body>
+    <canvas id="buyers" width="800" height="600"></canvas>
+    <script>
+      var l = [];
+      var d = [];
+      {% for elem in data %}
+        l.push("{{ elem.date }}")
+	d.push( {{ elem.num }} )
+      {% endfor %}
+
+      var buyerData = {
+        labels : l,
+      	datasets : [
+      	  {
+      	    fillColor : "rgba(28, 240, 226, 4)",
+      	    strokeColor : "rgba(28,240,226,4)",
+      	    pointColor : "#fff",
+      	    pointStrokeColor : "#9DB86D",
+      	    data : d
+      	  }
+      	]
+      }
+      var buyers = document.getElementById('buyers').getContext('2d');
+      new Chart(buyers).Bar(buyerData);
+    </script>
+  </body>
+</html>
+
+

@@ -1,0 +1,62 @@
+
+<!-- template for the home page -->
+<html>
+
+	<head>
+			<style>
+
+				#form
+				{
+
+				}
+				#login_block
+				{
+					width: 400px;
+					height: 250px;
+				    background-color: #4093a2;
+
+				    position: absolute;
+				    top:0;
+				    bottom: 0;
+				    left: 0;
+				    right: 0;
+
+				    margin: auto;
+
+				    border-radius: 20px;
+				}
+
+
+			</style>
+				
+			<script>
+			</script>
+	</head>
+
+
+	<body style="background-Color:#F2F3F7">
+	
+
+	<div style="width:100%;height:15%;background-Color:#7AAAB2">
+			<center><h1 style="color:white">Weblog Analyzer</h1></center>
+	</div>
+	
+
+	<div id="login_block" style="">
+			<center><h2 style="color:white"> File Uploader</h2></center>
+
+			<center><h3 style="color:white">- - - - - - - - - - - - - - -  - - - -</h3></cener>
+			<form id="form" method="post" enctype="multipart/form-data" action="{{url_for('upload') }}">
+				<input type="file" name="hellofile">
+				<input type="submit" value="send">
+			</form>
+	</div>
+	
+
+	</body>
+
+</html>
+
+<!-- this is script part -->
+<script>
+</script>

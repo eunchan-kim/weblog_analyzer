@@ -1,0 +1,88 @@
+<!DOCTYPE HTML>
+
+
+
+<html>
+	<head>
+			<style>
+			</style>
+			<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+			<script src="http://cdn.datatables.net/1.10.4/js/jquery.dataTables.min.js"></script>
+			<link rel="stylesheet" href="http://cdn.datatables.net/1.10.4/css/jquery.dataTables.css">
+			<script src="{{ url_for('static', filename='Chart.min.js') }}"></script>
+	</head>
+	
+
+	<body>
+		<div id='Title' style="float:left;clear:left;width:100%;height:20%;background-Color:#7AABB2;padding-bottom:20px;">
+			<center><strong><h1 style="color:white;">Weblog Analyzer</h1></strong></center>
+		</div>
+
+		<div id='menu1' style="float:left;clear:left;width:100%;height:10%;background-Color:#F2F3F7;">
+			<div id="title-block_1">
+			{% for elem in ip_attack %}
+				<strong><h3 id="traffic_of_ip">Traffic of {{ elem.ip }}</h3></strong>
+			{% endfor %}
+			</div> 
+			<form METHOD="LINK" action="/dashboard">		
+				<input style="float:right;width:10%"type= "submit"value="BACK">
+			</form>
+		</div>
+
+		<div id='block_1' style="background-Color:#F2F3F7;float:left;clear:left;width:100%;height:20%;">
+				<canvas id='canvas_1' width=1200 height=100px style='float:left;clear:left'> 	
+					<h1> This browser does not support canvas</h1>
+				</canvas>
+		</div>
+
+		<div id="title_block" style="background-Color:#F2F3F7; float:left; clear;left;width:100%;height:10%">
+		{% for elem in ip_attack %}
+			<string><h3 id="test2">{{ elem.attack }} detected</h3></strong>
+		{% endfor %}
+		</div>
+		<div style="float:left;width:100%;background-Color:#F2F3F7;height:40%;">
+				<textarea id="log_area" cols=190 rows=20  readonly style-"background-Color:#F2F3F7;">
+				</textarea>
+		</div>
+	</body>
+
+<!-- this is script part!!-->
+
+	<script>
+	var all_date = [];
+	var attack_data = [];
+
+	{% for elem in traffic %}
+		all_date.push("{{ elem.date }}")
+		attack_data.push("{{ elem.num }}")
+	{% endfor %}
+
+	$.post('/ip_activity/log_request', {not_used:"test"
+	}).done(function(msg){
+		test = msg["logs"];
+		$("#log_area").val(msg["logs"]);
+	}).fail(function(msg){
+		alert("server connection failed");
+	});
+
+	var trafficData = {
+		labels: all_date,
+		datasets :[
+		{
+			fillColor : "rgba(169, 26, 17, 4)",
+			strokeColor : "rgba(169, 26, 17, 4)",
+			pointColor : "#fff",
+			pointStrokeColor : "#9DB86D",
+			data : attack_data
+		}]
+	}
+
+	var traffic = document.getElementById('canvas_1').getContext('2d');
+	var traffic_chart = new Chart(traffic).Bar(trafficData);
+
+
+
+
+	</script>
+</html>
+

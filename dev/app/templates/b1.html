@@ -1,0 +1,94 @@
+
+<html>
+
+<head>
+	<style>
+		textarea
+		{
+			width :100%;
+			height: 100%;
+			border: 1px solid;
+		}
+	</style>	
+</head>
+	
+<body topmargin="0" leftmargin="0">
+ 
+<div style="float:left;width:100%;height:15%;background-Color:#7AC5CD">
+		<center><h1>Overview Analysis</h1></center>
+</div>
+
+<div style="float:left;width:100%;height:5%;background-Color:#FFFFFF">
+		<form action="javascript:send_keyword()" method="POST">
+			<input style="width:75%"  type = "text" name="key", id="keyword">
+			<input style="width:10%"type= "submit" value="search">
+			<input style="width:10%"type="submit" value="analysis">
+		</form>
+</div>
+
+<div style="float:left;width:20%;height:80%;background-Color:#F2FFFF">
+	<input type="checkbox" id="resume" value="name"/>Search in this result<br/>		
+	<h3 class="call_menu1">Filter</h3>
+		<table id="call_menu_table" class="menu1" style="display:block">
+			<tr style="vertical-align:top">
+				<td style="padding-left=10px"></td>
+				<td style="border-left:2px solid black;text-align:justify"> 
+					<h5> -IP -DATE -METHOD</h5>
+					<h5> -URI -RESULT </h5>
+					<form>
+						<input style="float:right;width:30%" type="text" id="form_1" name="query">
+					</form>
+					<h5> -Byte lengh </h5>
+					<h5> -User agent </h5>
+					
+				</td>
+		</table>
+	<form>
+	<center><input style="width:80%" type="submit" value="Save this rule"></center>
+	</form>
+	<h3>Basic Rules</h3>
+	<h3>User Rules</h3>
+	<h3>Statistics</h3>
+		<h4>43 events in total (1.4%)</h4>
+		<table style="display:none">
+			<tr style="vertical-align:top">
+				<td style="padding-left=10px"></td>
+				<td style="border-left:2px solid black;text-align:justify">
+		<h5>-IP(13)</h5>
+		<h5>-User agent(5)</h5>
+		<h5>-Result(7)</h5>
+		<h5>-URI</h5></td>
+		</table>
+	<h3>Prev</h3> <h4>143.248.235 404</h4>
+</div>
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
+<div style="clear:right;float:right;width:80%;height:80%;background-Color:#FFF2FF">
+	<textarea id="logs" cols="150" rows="20">
+	</textarea>
+</div>
+  
+</body>
+
+<script>
+	function redraw(){
+		document.getElementById("call_menu_table").style.display="block";}
+	function hide(){
+		document.getElementById("call_menu_table").style.display="none";
+	}
+
+	function send_keyword()
+    {
+    	if( !$("#resume").is(':checked') ){
+    		document.cookie="search_id=default; path=/;"
+    	}
+        $.post('/parse_data', {text: $("#keyword").val(), url: document.URL
+        }).done(function(msg){
+            document.getElementById("logs").value=msg["text"];
+            document.cookie="search_id="+msg["search_id"]+"; path=/;";
+        }).fail(function(msg){
+            alert("server connection failed")
+        });     
+    }
+</script>
+</html>
